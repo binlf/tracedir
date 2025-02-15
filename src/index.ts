@@ -30,8 +30,12 @@ const isDotFile = (filePath: string) => {
 const printer = (items: Array<string>) => {
   const chars = ["|", "+", "-"];
   const entryPrefix = `+--`;
-  const crlf = "|";
+  const crlf = pc.redBright("|");
 
+  // print cwd
+  console.log(path.basename(CURR_DIR) + "\n" + crlf);
+
+  // print directory tree
   items.map((item, idx, arr) => {
     console.log(entryPrefix + " " + item);
     idx !== arr.length - 1 && console.log(crlf);
@@ -41,12 +45,17 @@ const printer = (items: Array<string>) => {
 };
 
 const traceHandler = (
-  dirpath: string,
+  targetDir: string,
   { recursive }: { recursive: boolean }
 ) => {
+  const dirPath = path.resolve(CURR_DIR, targetDir);
+  if (!isDirectory(dirPath)) {
+    console.error(pc.red(`Error: ${dirPath} is not a directory`));
+    process.exit(1);
+  }
+
   const fsItems = fs.readdirSync(CURR_DIR);
   // todo: don't show hidden files
-  // todo: sort items by directory -> dotfiles -> files
   printer(
     fsItems.sort((fsItem, nextFsItem) => {
       const itemPath = path.join(CURR_DIR, fsItem);
@@ -71,8 +80,12 @@ program
     "Trace your directory structure. Copy and paste the output into LLM's"
   )
   .version("0.0.1")
-  .argument("[dirpath]", "path to directory", ".")
-  .option("-r, --recursive", "trace directory recursively", false)
+  .argument("[targetDir]", "path to target directory", ".")
+  .option(
+    "-r, --recursive",
+    "trace directory and directory content recursively",
+    false
+  )
   .action(traceHandler);
 
 program.parse();
