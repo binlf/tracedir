@@ -12,6 +12,9 @@
     "link": "bun unlink && bun link",
     "unlink": "bun unlink"
   },
+  "files": [
+    "dist/"
+  ],
   "tsup": {
     "entry": [
       "src/index.ts"
