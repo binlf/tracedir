@@ -46,13 +46,9 @@ const printer = (tree: Tree) => {
 };
 
 const buildTree = (itemPaths: Array<string>): Tree => {
-  const tree = {
-    
-  }
-  
+  const tree = {};
 
-
-  return tree
+  return tree;
 };
 
 type FsItemFile = {
@@ -163,6 +159,7 @@ const traceHandler = (
   targetDir: string,
   { recursive = false }: { recursive: boolean }
 ) => {
+  return console.log("Top of the morning to ya!");
   const dirPath = path.resolve(CURR_DIR, targetDir);
   if (!isDirectory(dirPath)) {
     console.error(pc.red(`Error: ${dirPath} is not a directory`));

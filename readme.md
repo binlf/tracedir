@@ -1,6 +1,6 @@
-# dirtrace
+# tracedir
 
-`dirtrace` is a utility tool designed to analyze and trace/print directory structures/trees. It provides a way to quickly get the shape/outline of your directory and its contents. It generates an LLM friendly output that you can copy and paste.
+`tracedir` is a utility tool designed to analyze and trace/print directory structures/trees. It provides a way to quickly get the shape/outline of your directory and its contents. It generates an LLM friendly output that you can copy and paste.
 
 ## Features
 
@@ -9,13 +9,13 @@
 ## Usage
 
 ```bash
-bunx dirtrace [targetDir] [options]
+bunx tracedir [targetDir] [options]
 ```
 
 ## Installation
 
 ```bash
-npm install -g dirtrace
+npm install -g tracedir
 ```
 
 ## License

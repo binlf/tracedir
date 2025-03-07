@@ -1,9 +1,8 @@
 {
-  "name": "dirtrace",
-  "version": "0.0.2",
+  "name": "tracedir",
+  "version": "0.0.1",
   "bin": {
-    "dirtrace": "./dist/index.js",
-    "drtr": "./dist/index.js"
+    "tracedir": "./dist/index.js"
   },
   "type": "module",
   "scripts": {
