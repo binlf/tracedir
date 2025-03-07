@@ -1,6 +1,6 @@
 {
   "name": "dirtrace",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "bin": {
     "dirtrace": "./dist/index.js",
     "drtr": "./dist/index.js"

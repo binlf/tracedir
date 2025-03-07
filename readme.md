@@ -1,6 +1,6 @@
 # dirtrace
 
-`dirtrace` is a utility tool designed to analyze and trace/print directory structures/trees. It provides a way to quickly get the shape of your directory and its contents.
+`dirtrace` is a utility tool designed to analyze and trace/print directory structures/trees. It provides a way to quickly get the shape/outline of your directory and its contents. It generates an LLM friendly output that you can copy and paste.
 
 ## Features
 
