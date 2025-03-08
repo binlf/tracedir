@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from "fs-extra";
+import fsp from "fs/promises";
 import path from "path";
 import { program } from "commander";
 import pc from "picocolors";
@@ -22,6 +23,8 @@ function isFile(path: string): boolean {
     return false;
   }
 }
+
+// fs.opendirSync()
 const isDotFile = (filePath: string) => {
   const file = path.basename(filePath);
   return isFile(filePath) && file.at(0) === ".";
@@ -71,111 +74,44 @@ type Tree = {
   items: Array<FsItem>;
 };
 
-const tree: Tree = {
-  cwd: "cwd",
-  items: [
-    {
-      type: "directory",
-      name: "app",
-      items: [
-        {
-          type: "directory",
-          name: "routes",
-          items: [],
-        },
-        {
-          type: "file",
-          name: "app.tsx",
-        },
-        {
-          type: "file",
-          name: "provider.tsx",
-        },
-        {
-          type: "file",
-          name: "router.tsx",
-        },
-      ],
-    },
-    {
-      type: "directory",
-      name: "assets",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "assets",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "components",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "config",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "features",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "hook",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "lib",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "stores",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "testing",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "types",
-      items: [],
-    },
-    {
-      type: "directory",
-      name: "utils",
-      items: [],
-    },
-  ],
-};
-
 const traceHandler = (
   targetDir: string,
   { recursive = false }: { recursive: boolean }
 ) => {
-  return console.log("Top of the morning to ya!");
+  // return console.log("Top of the morning to ya!");
   const dirPath = path.resolve(CURR_DIR, targetDir);
   if (!isDirectory(dirPath)) {
     console.error(pc.red(`Error: ${dirPath} is not a directory`));
     process.exit(1);
   }
 
-  // get all items
-  const fsItems = fs.readdirSync(dirPath);
-
   // parse ignore list(dotfiles, dotdirectories)
   const ignoreList = ["node_modules", ".git"];
 
+  // get all items
+  // todo: instead open the directory(recursively)
+  // todo: loop through the directory entries while skipping entries that are found in the ignore list
+
+  const itemPaths: Array<string> = [];
+  const readItems = async () => {
+    const dir = await fsp.opendir(dirPath, { recursive });
+
+    try {
+      for await (const dirent of dir) {
+        console.log("Dirent: ", dirent);
+        if (ignoreList.includes(dirent.name)) continue;
+        itemPaths.push(path.join(dirent.parentPath), dirent.name);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return readItems();
+
   const itemsToRead = fsItems.filter((item) => !ignoreList.includes(item));
 
-  const itemPaths: string[] = [];
-  const readItems = (items: string[]) => {
+  const readItem = (items: string[]) => {
     items.forEach((item) => {
       const currItemPath = path.join(CURR_DIR, item);
 
@@ -185,7 +121,7 @@ const traceHandler = (
         itemPaths.push(currItemPath);
         if (recursive) {
           // console.log("Path: ", currItemPath);
-          readItems(
+          readItem(
             fs
               .readdirSync(currItemPath)
               .map((item) => path.join(path.basename(currItemPath), item))
