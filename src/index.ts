@@ -93,48 +93,27 @@ const traceHandler = (
   // todo: loop through the directory entries while skipping entries that are found in the ignore list
 
   const itemPaths: Array<string> = [];
-  const readItems = async () => {
-    const dir = await fsp.opendir(dirPath, { recursive });
+
+  // todo: it currently implicitly has a `maxDepth` -- the recursive call doesn't go all the way
+  const readdir = async (dirPath: string) => {
+    const dir = await fsp.opendir(dirPath);
 
     try {
       for await (const dirent of dir) {
-        console.log("Dirent: ", dirent);
+        const entryPath = path.join(dirent.parentPath, dirent.name);
         if (ignoreList.includes(dirent.name)) continue;
-        itemPaths.push(path.join(dirent.parentPath), dirent.name);
+        itemPaths.push(entryPath);
+        if (recursive && isDirectory(entryPath)) readdir(entryPath);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  return readItems();
-
-  const itemsToRead = fsItems.filter((item) => !ignoreList.includes(item));
-
-  const readItem = (items: string[]) => {
-    items.forEach((item) => {
-      const currItemPath = path.join(CURR_DIR, item);
-
-      // console.log("Current Item Path: ", currItemPath);
-      if (isFile(currItemPath)) return itemPaths.push(currItemPath);
-      if (isDirectory(currItemPath)) {
-        itemPaths.push(currItemPath);
-        if (recursive) {
-          // console.log("Path: ", currItemPath);
-          readItem(
-            fs
-              .readdirSync(currItemPath)
-              .map((item) => path.join(path.basename(currItemPath), item))
-          );
-        }
-      }
-    });
-  };
-
-  readItems(itemsToRead);
-  console.log(itemPaths);
-
-  buildTree(itemPaths);
+  readdir(dirPath).then(() => {
+    console.log("Item Paths: ", itemPaths);
+    // buildTree(itemPaths);
+  });
 
   // todo: don't show hidden files
   // printer(
