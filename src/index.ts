@@ -1,78 +1,13 @@
 #!/usr/bin/env node
 
-import fs from "fs-extra";
 import fsp from "fs/promises";
 import path from "path";
 import { program } from "commander";
 import pc from "picocolors";
+import { buildTree } from "./utils/tree";
+import { isDirectory } from "./utils/fs-utils";
 
 const CURR_DIR = process.cwd();
-
-function isDirectory(path: string): boolean {
-  try {
-    return fs.pathExistsSync(path) && fs.statSync(path).isDirectory();
-  } catch (err) {
-    return false;
-  }
-}
-
-function isFile(path: string): boolean {
-  try {
-    return fs.pathExistsSync(path) && fs.statSync(path).isFile();
-  } catch (err) {
-    return false;
-  }
-}
-
-// fs.opendirSync()
-const isDotFile = (filePath: string) => {
-  const file = path.basename(filePath);
-  return isFile(filePath) && file.at(0) === ".";
-};
-
-const printer = (tree: Tree) => {
-  const chars = ["|", "+", "-"];
-  const itemPrefix = `+--`;
-  const crlf = pc.redBright("|");
-  const tab = "    ";
-
-  // print cwd
-  console.log(path.basename(CURR_DIR) + "\n" + crlf);
-
-  // print directory tree
-  // items.map((item, idx, arr) => {
-  //   console.log(itemPrefix + " " + item);
-  //   idx !== arr.length - 1 && console.log(crlf);
-  // });
-
-  return;
-};
-
-const buildTree = (itemPaths: Array<string>): Tree => {
-  const tree = {};
-
-  return tree;
-};
-
-type FsItemFile = {
-  type: "file";
-  name: string;
-  comment?: string;
-};
-
-type FsItemDirectory = {
-  type: "directory";
-  name: string;
-  items: Array<FsItem>;
-  comment?: string;
-};
-
-type FsItem = FsItemFile | FsItemDirectory;
-
-type Tree = {
-  cwd: string;
-  items: Array<FsItem>;
-};
 
 const traceHandler = (
   targetDir: string,
@@ -111,8 +46,14 @@ const traceHandler = (
   };
 
   readdir(dirPath).then(() => {
-    console.log("Item Paths: ", itemPaths);
-    // buildTree(itemPaths);
+    console.log("Item Paths: ", itemPaths.sort());
+    buildTree([
+      CURR_DIR,
+      ...itemPaths.sort((currItemPath, nextItemPath) => {
+        if (isDirectory(currItemPath)) return -1;
+        return 1;
+      }),
+    ]);
   });
 
   // todo: don't show hidden files
