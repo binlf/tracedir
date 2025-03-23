@@ -47,13 +47,14 @@ const traceHandler = (
 
   readdir(dirPath).then(() => {
     console.log("Item Paths: ", itemPaths.sort());
-    buildTree([
-      CURR_DIR,
+    const tree = buildTree([
       ...itemPaths.sort((currItemPath, nextItemPath) => {
         if (isDirectory(currItemPath)) return -1;
         return 1;
       }),
     ]);
+
+    console.log("Tree: ", tree);
   });
 
   // todo: don't show hidden files

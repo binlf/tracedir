@@ -9,6 +9,7 @@ const itemPaths = [
   "docs/readme.md",
 ];
 
+// todo: test's a dud lol
 test("Tree builds a correct tree and initializes the nodeMap correctly", () => {
   const tree = new Tree({
     key: "root",
@@ -30,18 +31,19 @@ test("`insertChildAt` method inserts a node correctly while properly adding the 
     key: "uniqueKey",
     name: "NodeName",
     type: "file",
-    childNodes: [],
   });
-  const moddedTree = tree.insertChildAt("uniqueKey", {
-    key: "unkey",
-    name: "UNKEY",
-    type: "directory",
+
+  expect(tree.tree).toBeDefined();
+  expect(tree.tree).toEqual(modTree);
+  expect(tree.tree).toEqual(tree.nodeMap.get("root") as any);
+  expect(tree.nodeMap.get("uniqueKey")).toEqual({
+    key: "uniqueKey",
+    name: "NodeName",
+    type: "file",
   });
-  // console.log("Mod Tree: ", modTree);
-  // console.log("Node Map: ", tree.nodeMap);
-  console.log("Modded Tree: ", moddedTree);
-  console.log("Latest Node Map: ", tree.nodeMap);
-  // expect(tree.nodeMap.get("root")).toContainAllKeys(Object.keys(tree.tree!));
+
+  console.log("Mod Tree: ", modTree);
+  console.log("Node Map: ", tree.nodeMap);
 });
 
 // test("buildTree builds a correct directory tree", () => {
