@@ -105,6 +105,7 @@ export class Tree {
 }
 
 export const buildTree = (itemPaths: Array<string>) => {
+  console.log("itemPaths: ", itemPaths);
   const tree = new Tree({
     key: "root",
     name: path.basename(CURR_DIR),

@@ -6,6 +6,7 @@ import { program } from "commander";
 import pc from "picocolors";
 import { buildTree } from "./utils/tree";
 import { isDirectory } from "./utils/fs-utils";
+import { printer } from "./utils/printer";
 
 const CURR_DIR = process.cwd();
 
@@ -45,17 +46,29 @@ const traceHandler = (
     }
   };
 
-  readdir(dirPath).then(() => {
-    console.log("Item Paths: ", itemPaths.sort());
-    const tree = buildTree([
-      ...itemPaths.sort((currItemPath, nextItemPath) => {
-        if (isDirectory(currItemPath)) return -1;
-        return 1;
-      }),
-    ]);
+  readdir(dirPath)
+    .then(() => {
+      const dirs: Array<string> = [];
+      const files: Array<string> = [];
 
-    console.log("Tree: ", tree);
-  });
+      // todo: revise this logic
+      itemPaths.forEach((itemPath) =>
+        isDirectory(itemPath) ? dirs.push(itemPath) : files.push(itemPath)
+      );
+      // todo: fix this ASAP
+      const tree = buildTree([...dirs.sort(), ...files.sort()]);
+      return tree;
+      // const tree = buildTree([
+      //   ...itemPaths.sort((currItemPath, nextItemPath) => {
+      //     if (isDirectory(currItemPath)) return -1;
+      //     return 1;
+      //   }),
+      // ]);
+    })
+    .then((tree) => {
+      if (!tree) return;
+      printer(tree);
+    });
 
   // todo: don't show hidden files
   // printer(

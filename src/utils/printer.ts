@@ -1,7 +1,7 @@
-import { type Tree } from "./tree";
+import { type FSTree } from "./tree";
 import pc from "picocolors";
 
-export const printer = (tree: Tree) => {
+export const printer = (tree: FSTree) => {
   const chars = ["|", "+", "-"];
   const itemPrefix = `+--`;
   const crlf = pc.redBright("|");
