@@ -94,8 +94,7 @@ const traceHandler = (
 };
 
 program
-  .name("dirtrace")
-  .alias("drtr")
+  .name("tracedir")
   .description(
     "Trace your directory structure. Copy and paste the output into LLM's"
   )
