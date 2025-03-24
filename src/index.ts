@@ -55,8 +55,9 @@ const traceHandler = (
       itemPaths.forEach((itemPath) =>
         isDirectory(itemPath) ? dirs.push(itemPath) : files.push(itemPath)
       );
-      // todo: fix this ASAP
+      // todo: revise this ASAP
       const tree = buildTree([...dirs.sort(), ...files.sort()]);
+      // console.log("Tree: ", tree);
       return tree;
       // const tree = buildTree([
       //   ...itemPaths.sort((currItemPath, nextItemPath) => {
@@ -67,6 +68,7 @@ const traceHandler = (
     })
     .then((tree) => {
       if (!tree) return;
+      // console.log("Tree: ", tree);
       printer(tree);
     });
 

@@ -7,7 +7,7 @@ type FSTreeNodeFile = {
   key: string;
   name: string;
   type: "file";
-  parent?: string | null;
+  parent: string | null;
 };
 
 type FSTreeNodeDirectory = {
@@ -15,7 +15,7 @@ type FSTreeNodeDirectory = {
   name: string;
   type: "directory";
   childNodes: Array<FSTreeNode>;
-  parent?: string | null;
+  parent: string | null;
 };
 
 type FSTreeNode = FSTreeNodeFile | FSTreeNodeDirectory;
@@ -110,6 +110,7 @@ export const buildTree = (itemPaths: Array<string>) => {
     key: "root",
     name: path.basename(CURR_DIR),
     type: "directory",
+    parent: null,
     childNodes: [],
   });
 
