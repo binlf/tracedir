@@ -22,7 +22,7 @@ const traceHandler = (
   }
 
   // parse ignore list(dotfiles, dotdirectories)
-  const ignoreList = ["node_modules", ".git"];
+  const ignoreList = ["node_modules", ".git", "dist"];
 
   // get all items
   // todo: instead open the directory(recursively)
