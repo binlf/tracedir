@@ -57,40 +57,13 @@ const traceHandler = (
       );
       // todo: revise this ASAP
       const tree = buildTree([...dirs.sort(), ...files.sort()]);
-      // console.log("Tree: ", tree);
       return tree;
-      // const tree = buildTree([
-      //   ...itemPaths.sort((currItemPath, nextItemPath) => {
-      //     if (isDirectory(currItemPath)) return -1;
-      //     return 1;
-      //   }),
-      // ]);
     })
     .then((tree) => {
       if (!tree) return;
-      // console.log("Tree: ", tree);
+      // todo: don't show hidden files
       printer(tree);
     });
-
-  // todo: don't show hidden files
-  // printer(
-  //   fsItems.sort((fsItem, nextFsItem) => {
-  //     const itemPath = path.join(CURR_DIR, fsItem);
-  //     const nextItemPath = path.join(CURR_DIR, nextFsItem);
-
-  //     if (isFile(itemPath) && isDirectory(nextItemPath)) return 1;
-  //     if (isDirectory(itemPath) && isFile(nextItemPath)) return -1;
-  //     if (
-  //       (isFile(itemPath) && isFile(nextItemPath)) ||
-  //       (isDirectory(itemPath) && isDirectory(nextItemPath))
-  //     )
-  //       return 0;
-  //     return 0;
-  //   })
-  // );
-
-  // printer(tree);
-  // console.log("Items: ", fsItems);
 };
 
 program
