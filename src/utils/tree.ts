@@ -32,17 +32,15 @@ export class Tree {
   }
 
   /**
-   * Inserts a new child node into the parent node identified by the given key.
-   *
-   * Validates that the tree is initialized, the parent node exists, and that the parent node is of type "directory".
-   *
-   * @param parentNodeKey - The key of the parent node where the child node will be inserted.
-   * @param childNode - The child node to insert.
-   * @returns The updated tree.
-   * @throws Error if the tree is uninitialized, the parent node is not found, or if the parent node is not a directory.
+   * Inserts a child node into a parent node at the end of its children array
+   * @param parentNodeKey - The key of the parent node to insert into
+   * @param childNode - The node to insert as a child
+   * @returns The updated tree
+   * @throws Error if tree is not initialized
+   * @throws Error if parent node doesn't exist
+   * @throws Error if parent node is not a directory
    */
   insertChildAt(parentNodeKey: string, childNode: FSTreeNode): FSTree {
-    // console.log("Current Node: ", childNode);
     if (!this.tree) {
       throw new Error("Tree is not initialized.");
     }
@@ -63,25 +61,27 @@ export class Tree {
   }
 
   /**
-   * Generates a unique node key using the provided node name. It's a concatenation of the parent name and the current node's name
-   *
-   * similar to path.join() internally
-   * @example Tree.getNodeKey("root", "src") // "root__src", "src__index.tsx"
-   *
-   * @param name - The name of the node for which the key will be generated.
-   * @returns A string that concatenates the prefix "nk-" with the given node name.
+   * Gets the parent node key by extracting the directory name from the item path
+   * and replacing all occurrences of the current directory basename with "root"
+   * @param itemPath - The path of the item
+   * @returns The parent node key string
    */
-  static getNodeKey(itemPath: string) {
+  static getParentNodeKey(itemPath: string) {
     return dirName(itemPath).replaceAll(path.basename(CURR_DIR), "root");
   }
 
-  static createNodeFromPath(nodePath: string): FSTreeNode {
-    const parent = dirName(nodePath);
+  /**
+   * Creates a new file system tree node object from a given path
+   * @param itemPath - The file system path to create a node from
+   * @returns A new FSTreeNode representing either a file or directory
+   * @throws Error if path is incomplete or invalid
+   */
+  static createNodeFromPath(itemPath: string): FSTreeNode {
+    const parent = dirName(itemPath);
     if (!parent) throw new Error("Path is incomplete");
-    const name = path.basename(nodePath);
-    // const key = this.getNodeKey(nodePath);
+    const name = path.basename(itemPath);
 
-    if (isDirectory(nodePath)) {
+    if (isDirectory(itemPath)) {
       return {
         key: name,
         name,
@@ -91,7 +91,7 @@ export class Tree {
       };
     }
 
-    if (isFile(nodePath)) {
+    if (isFile(itemPath)) {
       return {
         key: name,
         name,
@@ -100,12 +100,11 @@ export class Tree {
       };
     }
 
-    throw new Error(`Invalid node type for path: ${nodePath}`);
+    throw new Error(`Invalid node type for path: ${itemPath}`);
   }
 }
 
 export const buildTree = (itemPaths: Array<string>) => {
-  // console.log("itemPaths: ", itemPaths);
   const tree = new Tree({
     key: "root",
     name: path.basename(CURR_DIR),
@@ -115,8 +114,8 @@ export const buildTree = (itemPaths: Array<string>) => {
   });
 
   itemPaths.forEach((itemPath) => {
-    const nodeKey = Tree.getNodeKey(itemPath);
-    tree.insertChildAt(nodeKey, Tree.createNodeFromPath(itemPath));
+    const parentNodeKey = Tree.getParentNodeKey(itemPath);
+    tree.insertChildAt(parentNodeKey, Tree.createNodeFromPath(itemPath));
   });
 
   return tree.tree;
