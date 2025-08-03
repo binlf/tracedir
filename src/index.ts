@@ -10,68 +10,107 @@ import { printer } from "./utils/printer";
 
 const CURR_DIR = process.cwd();
 
-const traceHandler = (
-  targetDir: string,
-  { recursive = false }: { recursive: boolean }
-) => {
-  // return console.log("Top of the morning to ya!");
-  const dirPath = path.resolve(CURR_DIR, targetDir);
-  if (!isDirectory(dirPath)) {
-    console.error(pc.red(`Error: ${dirPath} is not a directory`));
-    process.exit(1);
+interface ScanOptions {
+  recursive: boolean;
+  ignorePatterns: string[];
+}
+
+class DirectoryScanner {
+  private readonly options: ScanOptions;
+  private readonly itemPaths: string[] = [];
+
+  constructor(options: ScanOptions) {
+    this.options = options;
   }
 
-  // parse ignore list(dotfiles, dotdirectories)
-  const ignoreList = ["node_modules", ".git", "dist"];
+  private shouldIgnore(name: string): boolean {
+    return this.options.ignorePatterns.some((pattern) => {
+      if (pattern.startsWith(".")) {
+        return name === pattern || name.startsWith(pattern);
+      }
+      return name === pattern;
+    });
+  }
 
-  // get all items
-  // todo: instead open the directory(recursively)
-  // todo: loop through the directory entries while skipping entries that are found in the ignore list
-
-  const itemPaths: Array<string> = [];
-
-  // todo: it currently implicitly has a `maxDepth` -- the recursive call doesn't go all the way
-  const readdir = async (dirPath: string) => {
-    const dir = await fsp.opendir(dirPath);
-
+  private async scanDirectory(dirPath: string): Promise<void> {
     try {
+      const dir = await fsp.opendir(dirPath);
+
       for await (const dirent of dir) {
+        if (this.shouldIgnore(dirent.name)) continue;
+
         const entryPath = path.join(dirent.parentPath, dirent.name);
-        if (ignoreList.includes(dirent.name)) continue;
-        itemPaths.push(entryPath);
-        if (recursive && isDirectory(entryPath)) readdir(entryPath);
+        this.itemPaths.push(entryPath);
+
+        if (this.options.recursive && isDirectory(entryPath)) {
+          await this.scanDirectory(entryPath);
+        }
       }
     } catch (error) {
-      console.error(error);
-    }
-  };
-
-  readdir(dirPath)
-    .then(() => {
-      const dirs: Array<string> = [];
-      const files: Array<string> = [];
-
-      // todo: revise this logic
-      itemPaths.forEach((itemPath) =>
-        isDirectory(itemPath) ? dirs.push(itemPath) : files.push(itemPath)
+      console.error(
+        pc.yellow(`Warning: Could not read directory ${dirPath}`),
+        error
       );
-      // todo: revise this ASAP
-      const tree = buildTree([...dirs.sort(), ...files.sort()]);
-      return tree;
-    })
-    .then((tree) => {
-      if (!tree) return;
-      // todo: don't show hidden files
-      printer(tree);
+    }
+  }
+
+  async scan(targetPath: string): Promise<string[]> {
+    this.itemPaths.length = 0; // Reset array
+    await this.scanDirectory(targetPath);
+    return [...this.itemPaths];
+  }
+}
+
+const traceHandler = async (
+  targetDir: string,
+  { recursive = false }: { recursive: boolean }
+): Promise<void> => {
+  try {
+    const dirPath = path.resolve(CURR_DIR, targetDir);
+
+    if (!isDirectory(dirPath)) {
+      console.error(pc.red(`Error: ${dirPath} is not a directory`));
+      process.exit(1);
+    }
+
+    const scanner = new DirectoryScanner({
+      recursive,
+      ignorePatterns: [
+        "node_modules",
+        ".git",
+        "dist",
+        ".env",
+        ".DS_Store",
+        ".vscode",
+        "Thumbs.db",
+      ],
     });
+
+    console.log(
+      pc.blue(`Scanning ${dirPath}${recursive ? " (recursive)" : ""} ...`)
+    );
+
+    const itemPaths = await scanner.scan(dirPath);
+
+    if (itemPaths.length === 0) {
+      console.log(pc.yellow("No files found to trace."));
+      return;
+    }
+
+    const tree = buildTree(itemPaths);
+    printer(tree);
+  } catch (error) {
+    console.error(pc.red("Error during directory tracing:"), error);
+    process.exit(1);
+  }
 };
 
 program
   .name("tracedir")
   .description(
-    "Trace your directory structure. Copy and paste the output into LLM's"
+    "Trace your directory structure. Copy and paste the output into LLMs"
   )
-  .version("0.0.1")
+  .version("1.0.0")
   .argument("[targetDir]", "path to target directory", ".")
   .option(
     "-r, --recursive",
