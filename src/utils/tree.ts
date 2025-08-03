@@ -92,16 +92,10 @@ export class Tree {
    * Gets the parent node key for a given item path
    */
   static getParentNodeKey(itemPath: string): string {
-    // const parentPath = dirName(itemPath);
     const dirPath = path.parse(itemPath).dir;
     const nodeKey = this.createNodeKey(dirPath);
     return dirPath === CURR_DIR ? "root" : nodeKey;
-    // return parentPath === path.basename(CURR_DIR)
-    //   ? "root"
-    //   : this.createNodeKey(itemPath);
   }
-  // static getParentNodeKey(itemPath: string) {
-  // return dirName(itemPath).replaceAll(path.basename(CURR_DIR), "root");
 
   /**
    * Creates a file system tree node from a path
