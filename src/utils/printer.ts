@@ -3,7 +3,7 @@ import pc from "picocolors";
 
 type Parent = {
   level: number;
-  name: string;
+  key: string;
 };
 
 export const printer = (tree: FSTree) => {
@@ -17,34 +17,42 @@ export const printer = (tree: FSTree) => {
 
   buffer.push(tree.name);
   buffer.push(tab);
-  parentMap.set(tree.name, { level: 0, name: tree.name });
+  parentMap.set(tree.key, { level: 0, key: tree.key });
   traverseNodes(tree.childNodes);
 
   function traverseNodes(childNodes: FSTree["childNodes"]) {
     childNodes.forEach((node, index, array) => {
-      const isLastItem = index === array.length - 1;
+      const isLastNode = index === array.length - 1;
       const { name, type, parent, key } = node;
       if (!parent)
         throw new Error(`Node with key: ${key} doesn't have a parent`);
-      const nodeParent = parentMap.get(parent);
-      if (!nodeParent) throw new Error("Something went wrong");
-      const tabs =
-        nodeParent.level > 0
-          ? tab.padEnd(tab.length * nodeParent.level, tab)
-          : "";
+
+      const parentNode = parentMap.get(parent);
+      if (!parentNode) {
+        throw new Error(`Parent node '${parent}' not found in parent map`);
+      }
+
+      const tabs = parentNode.level > 0 ? tab.repeat(parentNode.level) : "";
+
       buffer.push(tabs + itemPrefix + name + (type === "directory" ? "/" : ""));
+
       if (type === "directory") {
-        parentMap.set(name, { level: nodeParent.level + 1, name });
+        parentMap.set(key, { level: parentNode.level + 1, key: key });
+
         if (
           !node.childNodes.length &&
-          nodeParent.name === tree.name &&
-          !isLastItem
-        )
-          return buffer.push(tab);
-        traverseNodes(node.childNodes);
+          parentNode.key === tree.key &&
+          !isLastNode
+        ) {
+          buffer.push(tab);
+        } else {
+          traverseNodes(node.childNodes);
+        }
       }
-      if (type === "file" && !isLastItem && nodeParent.name === tree.name)
+
+      if (type === "file" && !isLastNode && parentNode.key === tree.key) {
         buffer.push(tab);
+      }
     });
   }
 
