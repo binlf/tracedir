@@ -84,7 +84,6 @@ export class Tree {
    */
   private static createNodeKey(itemPath: string): string {
     const relativePath = path.relative(CURR_DIR, itemPath);
-    // console.log("Relative Path: ", CURR_DIR, itemPath, relativePath);
     return relativePath || path.basename(CURR_DIR);
   }
 
@@ -93,7 +92,7 @@ export class Tree {
    */
   static getParentNodeKey(itemPath: string): string {
     const dirPath = path.parse(itemPath).dir;
-    const nodeKey = this.createNodeKey(dirPath);
+    const nodeKey = Tree.createNodeKey(dirPath);
     return dirPath === CURR_DIR ? "root" : nodeKey;
   }
 
