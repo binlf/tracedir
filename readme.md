@@ -75,9 +75,9 @@ my-project
 +-- src/
 |   +-- index.ts
 |   +-- utils/
-|       +-- fs-utils.ts
-|       +-- printer.ts
-|       +-- tree.ts
+|   |   +-- fs-utils.ts
+|   |   +-- printer.ts
+|   |   +-- tree.ts
 +-- package.json
 +-- README.md
 +-- tsconfig.json
